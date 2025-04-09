@@ -1,0 +1,49 @@
+.home-container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+  
+  .home-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .properties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .property-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #fff;
+    transition: box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .property-card:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .property-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .property-location {
+    color: #777;
+    margin-bottom: 0.5rem;
+  }
+  
+  .property-price {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+  }
+  

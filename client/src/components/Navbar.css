@@ -1,0 +1,49 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #1f2937;
+    color: white;
+  }
+  
+  .navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .navbar-logo {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .navbar-links a,
+  .navbar-links button {
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .navbar-links .logout-btn {
+    background-color: #dc3545;
+  }
+  
+  .navbar-links .logout-btn:hover {
+    background-color: #bd2130;
+  }
+  
+  .navbar-links .login-btn {
+    background-color: #007bff;
+  }
+  
+  .navbar-links .login-btn:hover {
+    background-color: #0056b3;
+  }
+  
