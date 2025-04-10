@@ -45,8 +45,9 @@ class Property(db.Model, SerializerMixin):
             "location": self.location,
             "price": self.price,
             "user_id": self.user_id,
-            "booking_ids": [b.id for b in self.bookings]
-        }
+            "booking_ids": [b.id for b in self.bookings],
+            "image_url": self.image_url
+   }
 
 
 class Booking(db.Model):

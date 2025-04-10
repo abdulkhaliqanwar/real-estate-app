@@ -1,19 +1,28 @@
-# server/app.py
-from flask import jsonify, request
-from flask_restful import Resource
-from config import app, db, api
-from flask import session
+#!/usr/bin/env python3
 
+from flask import Flask, jsonify, request, session
+from flask_restful import Resource, Api
+from flask_cors import CORS
+from models import db, User, Property, Booking
+import os
 
-@app.route('/')
+app = Flask(__name__)
+app.secret_key = "your_secret_key"  # replace with a strong secret
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Init extensions
+db.init_app(app)
+api = Api(app)
+CORS(app, supports_credentials=True)  # ✅ Allow frontend to talk to backend
+
+@app.route("/")
 def index():
     return jsonify({"message": "Project Server is Running 🚀"})
 
-# Import models AFTER app is created to avoid circular import issues
-from models import User, Property, Booking
 
+# ====================== RESOURCES ======================
 
-### === USER RESOURCE ===
 class Users(Resource):
     def get(self):
         users = User.query.all()
@@ -30,7 +39,6 @@ class Users(Resource):
             return {"error": str(e)}, 400
 
 
-### === PROPERTY RESOURCE ===
 class Properties(Resource):
     def get(self):
         props = Property.query.all()
@@ -43,6 +51,7 @@ class Properties(Resource):
                 title=data["title"],
                 location=data["location"],
                 price=float(data["price"]),
+                image_url=data["image_url"],  # ✅ Make sure image can be posted
                 user_id=int(data["user_id"])
             )
             db.session.add(new_prop)
@@ -52,7 +61,6 @@ class Properties(Resource):
             return {"error": str(e)}, 400
 
 
-### === BOOKING RESOURCE ===
 class Bookings(Resource):
     def get(self):
         bookings = Booking.query.all()
@@ -72,6 +80,7 @@ class Bookings(Resource):
             return new_booking.to_dict(), 201
         except Exception as e:
             return {"error": str(e)}, 400
+
 
 class BookingById(Resource):
     def get(self, id):
@@ -100,18 +109,12 @@ class BookingById(Resource):
         booking = Booking.query.get(id)
         if not booking:
             return {"error": "Booking not found"}, 404
-
         db.session.delete(booking)
         db.session.commit()
         return {}, 204
 
 
-
-### === REGISTER ROUTES ===
-api.add_resource(Users, '/api/users')
-api.add_resource(Properties, '/api/properties')
-api.add_resource(Bookings, '/api/bookings')
-api.add_resource(BookingById, '/api/bookings/<int:id>')
+# ====================== SESSION AUTH ======================
 
 @app.post("/api/login")
 def login():
@@ -138,11 +141,14 @@ def logout():
     return {}, 204
 
 
-import os
+# ====================== ROUTES REGISTER ======================
 
-if __name__ == '__main__':
-    app.run(
-        host='0.0.0.0',
-        port=int(os.environ.get('PORT', 5555)),
-        debug=False
-    )
+api.add_resource(Users, "/api/users")
+api.add_resource(Properties, "/api/properties")
+api.add_resource(Bookings, "/api/bookings")
+api.add_resource(BookingById, "/api/bookings/<int:id>")
+
+# ====================== RUN ======================
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5555)), debug=True)

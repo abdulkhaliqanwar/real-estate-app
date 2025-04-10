@@ -2,13 +2,14 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import BookingForm from "../components/BookingForm";
 import "./PropertyDetails.css";
+import API_BASE_URL from "../config"; // Import the base URL
 
 function PropertyDetails() {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
 
   useEffect(() => {
-    fetch("/api/properties")
+    fetch(`${API_BASE_URL}/api/properties`)
       .then((r) => r.json())
       .then((data) => {
         const match = data.find((prop) => prop.id === parseInt(id));

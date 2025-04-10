@@ -2,6 +2,7 @@
   "name": "real-estate-client",
   "version": "1.0.0",
   "description": "React frontend for real estate project",
+  "proxy": "https://real-estate-app-gvks.onrender.com",  
   "scripts": {
     "start": "vite",
     "dev": "vite",
