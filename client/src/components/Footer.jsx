@@ -6,6 +6,8 @@ function Footer() {
     <footer className="footer">
       <div className="footer-left">
         <p>🏡 RealEstate App</p>
+        <p>Contact us: support@realestateapp.com</p>
+        <p>Phone: +254 700 123 456</p>
         <p>© {new Date().getFullYear()} All rights reserved</p>
       </div>
 
