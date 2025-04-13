@@ -8,14 +8,18 @@ function Home() {
   const [properties, setProperties] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch properties from the backend
+  // Fetch limited properties for unauthenticated users
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/properties`)
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch properties");
         return r.json();
       })
-      .then(setProperties)
+      .then((allProperties) => {
+        // Show only 3 random properties to unauthenticated users
+        const shuffled = [...allProperties].sort(() => 0.5 - Math.random());
+        setProperties(shuffled.slice(0, 3));
+      })
       .catch((err) => console.error("❌ Fetch Error:", err));
   }, []);
 

@@ -141,6 +141,52 @@ def logout():
     return {}, 204
 
 
+@app.route('/api/properties', methods=['POST'])
+def create_property():
+    data = request.get_json()
+    
+    new_property = Property(
+        title=data['title'],
+        description=data['description'],
+        price=data['price'],
+        location=data['location'],
+        bedrooms=data['bedrooms'],
+        bathrooms=data['bathrooms'],
+        image_url=data['image_url']
+    )
+    
+    db.session.add(new_property)
+    db.session.commit()
+    
+    return jsonify({
+        "id": new_property.id,
+        "title": new_property.title,
+        "message": "Property created successfully"
+    }), 201
+
+@app.route('/api/properties/<int:id>', methods=['GET'])
+def get_property(id):
+    try:
+        property = Property.query.get(id)
+        if not property:
+            return jsonify({"error": "Property not found"}), 404
+            
+        return jsonify({
+            'id': property.id,
+            'title': property.title,
+            'location': property.location,
+            'price': property.price,
+            'image_url': property.image_url,
+            'user_id': property.user_id,
+            'booking_ids': [b.id for b in property.bookings]
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            "error": "Failed to fetch property",
+            "message": str(e)
+        }), 500
+
 # ====================== ROUTES REGISTER ======================
 
 api.add_resource(Users, "/api/users")

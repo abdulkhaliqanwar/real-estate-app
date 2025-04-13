@@ -7,11 +7,38 @@ import random
 
 fake = Faker()
 
-# 🔥 Online Unsplash image URLs (20 total)
-image_urls =[
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80"
+# 🔥 Online Unsplash image URLs (30 unique property images)
+image_urls = [
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+  "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752355-35792bedcfea",
+  "https://images.unsplash.com/photo-1600607688969-a5bfcd646154",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607688969-a5bfcd646154",
+  "https://images.unsplash.com/photo-1600585152221-93b8f5caa9af",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d",
+  "https://images.unsplash.com/photo-1600566752229-250c794f7d36"
 ]
 
 

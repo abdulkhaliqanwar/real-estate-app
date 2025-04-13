@@ -19,7 +19,7 @@ function Navbar({ currentUser }) {
       <Link to="/" className="navbar-logo">🏡 RealEstate App</Link>
 
       <div className="navbar-links">
-        <Link to="/">All Properties</Link>
+        <Link to="/properties">All Properties</Link> {/* Updated link */}
         <Link to="/bookings">Bookings</Link>
 
         {currentUser ? (
