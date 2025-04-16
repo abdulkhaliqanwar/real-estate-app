@@ -1,103 +1,50 @@
-import { useFormik } from "formik";
-import { useNavigate } from "react-router-dom";
+
 import { useState } from "react";
-import "./Auth.css"; // New shared auth styles
+import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config";
+import "./Auth.css";
 
 function Signup() {
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({ username: "", email: "", password: "" });
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const formik = useFormik({
-    initialValues: {
-      username: "",
-      email: "",
-      password: "" // Added password field
-    },
-    onSubmit: async (values) => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const res = await fetch("/api/users", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        });
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
-        if (res.ok) {
-          navigate("/login", { 
-            state: { success: "Account created successfully! Please login." }
-          });
-        } else {
-          const err = await res.json();
-          setError(err.error || "Signup failed. Please try again.");
-        }
-      } catch (err) {
-        setError("Network error. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    },
-  });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+
+    fetch(`${API_BASE_URL}/api/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(formData),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Signup failed");
+        return res.json();
+      })
+      .then((data) => {
+        const confirmSignup = window.confirm("Signup successful! Proceed to homepage?");
+        localStorage.setItem("currentUser", JSON.stringify(data.user));
+        if (confirmSignup) navigate("/");
+      })
+      .catch((err) => setError(err.message || "Something went wrong"));
+  };
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Create Account</h2>
-        <p className="auth-subtitle">Join our community today</p>
-
-        <form onSubmit={formik.handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label>Username</label>
-            <input
-              name="username"
-              onChange={formik.handleChange}
-              value={formik.values.username}
-              required
-              placeholder="Enter your username"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              name="email"
-              type="email"
-              onChange={formik.handleChange}
-              value={formik.values.email}
-              required
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              name="password"
-              type="password"
-              onChange={formik.handleChange}
-              value={formik.values.password}
-              required
-              placeholder="Create a password"
-            />
-          </div>
-
-          {error && <div className="auth-error">{error}</div>}
-
-          <button 
-            type="submit" 
-            className="auth-button"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Creating Account...' : 'Sign Up'}
-          </button>
-        </form>
-
-        <p className="auth-footer">
-          Already have an account? <a href="/login">Log in</a>
-        </p>
-      </div>
+      <h2>Sign Up</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="text" name="username" placeholder="Name" value={formData.username} onChange={handleChange} required />
+        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
+        <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
+        {error && <div className="error-message">{error}</div>}
+        <button type="submit">Sign Up</button>
+      </form>
     </div>
   );
 }

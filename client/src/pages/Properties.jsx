@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import API_BASE_URL from "../config";
 import "./Properties.css";
 
@@ -60,12 +60,11 @@ function Properties() {
               <h2>{prop.title}</h2>
               <p>{prop.location}</p>
               <p className="price">KES {new Intl.NumberFormat().format(prop.price)}</p>
-              <button 
-                className="book-btn"
-                onClick={() => navigate(`/book/${prop.id}`)}
-              >
-                Book Now
-              </button>
+
+              {/* ✅ Book Now Button */}
+              <Link to={`/book/${prop.id}`}>
+                <button className="book-btn">Book Now</button>
+              </Link>
             </div>
           </div>
         ))}

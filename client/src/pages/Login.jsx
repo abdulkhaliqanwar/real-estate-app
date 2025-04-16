@@ -1,96 +1,48 @@
-import { useFormik } from "formik";
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config";
 import "./Auth.css";
 
-function Login({ setCurrentUser }) {
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const formik = useFormik({
-    initialValues: { 
-      username: "",
-      password: "" 
-    },
-    onSubmit: async (values) => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const res = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(values),
-        });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
 
-        if (res.ok) {
-          const user = await res.json();
-          setCurrentUser(user);
-          navigate(location.state?.from || "/");
-        } else {
-          throw new Error("Invalid credentials");
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-  });
+    fetch(`${API_BASE_URL}/api/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Login failed");
+        return res.json();
+      })
+      .then((data) => {
+        const confirmLogin = window.confirm("Login successful! Proceed to homepage?");
+        localStorage.setItem("currentUser", JSON.stringify(data.user));
+        if (confirmLogin) navigate("/dashboard");
+
+      })
+      .catch((err) => setError("Invalid email or password"));
+  };
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Welcome Back</h2>
-        {location.state?.success && (
-          <div className="auth-success">{location.state.success}</div>
-        )}
-        <p className="auth-subtitle">Please enter your details</p>
-
-        <form onSubmit={formik.handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label>Username</label>
-            <input
-              name="username"
-              onChange={formik.handleChange}
-              value={formik.values.username}
-              required
-              placeholder="Enter your username"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              name="password"
-              type="password"
-              onChange={formik.handleChange}
-              value={formik.values.password}
-              required
-              placeholder="Enter your password"
-            />
-          </div>
-
-          {error && <div className="auth-error">{error}</div>}
-
-          <button 
-            type="submit" 
-            className="auth-button"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Logging In...' : 'Log In'}
-          </button>
-        </form>
-
-        <p className="auth-footer">
-          Don't have an account? <a href="/signup">Sign up</a>
-        </p>
-      </div>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        {error && <div className="error-message">{error}</div>}
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
 }
 
 export default Login;
+

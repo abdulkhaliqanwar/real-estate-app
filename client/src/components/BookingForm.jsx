@@ -1,7 +1,12 @@
 import { useFormik } from "formik";
+import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config";
+
 import "./BookingForm.css";
 
 function BookingForm({ propertyId, userId }) {
+  const navigate = useNavigate();
+
   const formik = useFormik({
     initialValues: {
       check_in: "",
@@ -14,6 +19,13 @@ function BookingForm({ propertyId, userId }) {
         user_id: userId,
       };
 
+      console.log("📤 Sending booking data:", bookingData);
+      if (!userId) {
+        alert("User ID missing. Please log in again.");
+        return;
+      }
+      
+
       fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -24,10 +36,11 @@ function BookingForm({ propertyId, userId }) {
           return res.json();
         })
         .then(() => {
-          alert("Booking successful!");
           resetForm();
+          navigate("/bookings");
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error("❌ Booking error:", err);
           alert("Something went wrong. Try again.");
         });
     },

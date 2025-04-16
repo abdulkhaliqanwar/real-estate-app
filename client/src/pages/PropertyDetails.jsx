@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import BookingForm from "../components/BookingForm";
 import "./PropertyDetails.css";
 import API_BASE_URL from "../config";
 
@@ -35,10 +34,6 @@ function PropertyDetails() {
       <h1 className="details-title">{property.title}</h1>
       <p className="details-location">{property.location}</p>
       <p className="details-price">KES {new Intl.NumberFormat().format(property.price)}</p>
-
-      <div className="details-booking-form">
-        <BookingForm propertyId={property.id} userId={1} />
-      </div>
     </div>
   );
 }
