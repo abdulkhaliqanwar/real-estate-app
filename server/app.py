@@ -1,200 +1,66 @@
-#!/usr/bin/env python3
 
-from flask import Flask, jsonify, request, session
-from flask_restful import Resource, Api
-from flask_cors import CORS
-from models import db, User, Property, Booking
 import os
+from flask import Flask, request, jsonify, session
+from flask_cors import CORS
+from extensions import db, migrate
+from models import User, Property, Booking
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"  # replace with a strong secret
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'supersecretkey'
+app.config['SESSION_TYPE'] = 'filesystem'
 
 # Init extensions
 db.init_app(app)
-api = Api(app)
-CORS(app, supports_credentials=True)  # ✅ Allow frontend to talk to backend
+migrate.init_app(app, db)
+CORS(app, supports_credentials=True)
 
-@app.route("/")
+@app.route('/')
 def index():
-    return jsonify({"message": "Project Server is Running 🚀"})
+    return {"message": "Server is running!"}
 
+@app.route('/api/properties', methods=['GET'])
+def get_properties():
+    properties = Property.query.all()
+    return jsonify([p.to_dict() for p in properties])
 
-# ====================== RESOURCES ======================
+@app.route('/api/properties/<int:property_id>', methods=['GET'])
+def get_property(property_id):
+    property = Property.query.get_or_404(property_id)
+    return jsonify(property.to_dict())
 
-class Users(Resource):
-    def get(self):
-        users = User.query.all()
-        return [user.to_dict() for user in users], 200
-
-    def post(self):
-        data = request.get_json()
-        try:
-            new_user = User(username=data["username"], email=data["email"])
-            db.session.add(new_user)
-            db.session.commit()
-            return new_user.to_dict(), 201
-        except Exception as e:
-            return {"error": str(e)}, 400
-
-
-class Properties(Resource):
-    def get(self):
-        props = Property.query.all()
-        return [prop.to_dict() for prop in props], 200
-
-    def post(self):
-        data = request.get_json()
-        try:
-            new_prop = Property(
-                title=data["title"],
-                location=data["location"],
-                price=float(data["price"]),
-                image_url=data["image_url"],  # ✅ Make sure image can be posted
-                user_id=int(data["user_id"])
-            )
-            db.session.add(new_prop)
-            db.session.commit()
-            return new_prop.to_dict(), 201
-        except Exception as e:
-            return {"error": str(e)}, 400
-
-
-class Bookings(Resource):
-    def get(self):
-        bookings = Booking.query.all()
-        return [b.to_dict() for b in bookings], 200
-
-    def post(self):
-        data = request.get_json()
-        try:
-            new_booking = Booking(
-                check_in=data["check_in"],
-                check_out=data["check_out"],
-                user_id=int(data["user_id"]),
-                property_id=int(data["property_id"])
-            )
-            db.session.add(new_booking)
-            db.session.commit()
-            return new_booking.to_dict(), 201
-        except Exception as e:
-            return {"error": str(e)}, 400
-
-
-class BookingById(Resource):
-    def get(self, id):
-        booking = Booking.query.get(id)
-        if booking:
-            return booking.to_dict(), 200
-        return {"error": "Booking not found"}, 404
-
-    def patch(self, id):
-        booking = Booking.query.get(id)
-        if not booking:
-            return {"error": "Booking not found"}, 404
-
-        data = request.get_json()
-        try:
-            if "check_in" in data:
-                booking.check_in = data["check_in"]
-            if "check_out" in data:
-                booking.check_out = data["check_out"]
-            db.session.commit()
-            return booking.to_dict(), 200
-        except Exception as e:
-            return {"error": str(e)}, 400
-
-    def delete(self, id):
-        booking = Booking.query.get(id)
-        if not booking:
-            return {"error": "Booking not found"}, 404
-        db.session.delete(booking)
-        db.session.commit()
-        return {}, 204
-
-
-# ====================== SESSION AUTH ======================
-
-@app.post("/api/login")
+@app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(username=data.get("username")).first()
-    if user:
-        session["user_id"] = user.id
-        return user.to_dict(), 200
-    return {"error": "Invalid username"}, 401
+    user = User.query.filter_by(email=data['email']).first()
+    if user and user.password == data['password']:
+        session['user_id'] = user.id
+        return jsonify({'message': 'Logged in successfully', 'user': user.to_dict()}), 200
+    return jsonify({'message': 'Invalid credentials'}), 401
 
-
-@app.get("/api/check_session")
-def check_session():
-    user_id = session.get("user_id")
-    if user_id:
-        user = User.query.get(user_id)
-        return user.to_dict(), 200
-    return {"error": "Unauthorized"}, 401
-
-
-@app.delete("/api/logout")
-def logout():
-    session["user_id"] = None
-    return {}, 204
-
-
-@app.route('/api/properties', methods=['POST'])
-def create_property():
+@app.route('/api/signup', methods=['POST'])
+def signup():
     data = request.get_json()
-    
-    new_property = Property(
-        title=data['title'],
-        description=data['description'],
-        price=data['price'],
-        location=data['location'],
-        bedrooms=data['bedrooms'],
-        bathrooms=data['bathrooms'],
-        image_url=data['image_url']
-    )
-    
-    db.session.add(new_property)
+    new_user = User(email=data['email'], password=data['password'])
+    db.session.add(new_user)
     db.session.commit()
-    
-    return jsonify({
-        "id": new_property.id,
-        "title": new_property.title,
-        "message": "Property created successfully"
-    }), 201
+    return jsonify({'message': 'User created successfully', 'user': new_user.to_dict()}), 201
 
-@app.route('/api/properties/<int:id>', methods=['GET'])
-def get_property(id):
-    try:
-        property = Property.query.get(id)
-        if not property:
-            return jsonify({"error": "Property not found"}), 404
-            
-        return jsonify({
-            'id': property.id,
-            'title': property.title,
-            'location': property.location,
-            'price': property.price,
-            'image_url': property.image_url,
-            'user_id': property.user_id,
-            'booking_ids': [b.id for b in property.bookings]
-        }), 200
-        
-    except Exception as e:
-        return jsonify({
-            "error": "Failed to fetch property",
-            "message": str(e)
-        }), 500
+@app.route('/api/bookings', methods=['POST'])
+def book_property():
+    data = request.get_json()
+    booking = Booking(
+        user_id=data['user_id'],
+        property_id=data['property_id'],
+        check_in=data['check_in'],
+        check_out=data['check_out']
+    )
+    db.session.add(booking)
+    db.session.commit()
+    return jsonify({'message': 'Booking successful'}), 201
 
-# ====================== ROUTES REGISTER ======================
-
-api.add_resource(Users, "/api/users")
-api.add_resource(Properties, "/api/properties")
-api.add_resource(Bookings, "/api/bookings")
-api.add_resource(BookingById, "/api/bookings/<int:id>")
-
-# ====================== RUN ======================
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5555)), debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
