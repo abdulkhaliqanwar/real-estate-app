@@ -6,14 +6,18 @@ from flask_migrate import Migrate
 from server.models import db, User, Property, Booking
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'instance/app.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
 app.secret_key = 'secret123'
 
 # ✅ Enable CORS before routes
-CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
 # ✅ Initialize extensions
 Session(app)
