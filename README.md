@@ -4,10 +4,6 @@ A full-stack real estate listing and booking application built using **React (Vi
 
 ---
 
-## 🚀 Live Demo
-
-- **Frontend:** [https://real-estate-client-wjqk.onrender.com](https://real-estate-client-wjqk.onrender.com)  
-- **Backend API:** [https://real-estate-app-gvks.onrender.com](https://real-estate-app-gvks.onrender.com)
 
 ---
 
