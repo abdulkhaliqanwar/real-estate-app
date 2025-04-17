@@ -17,7 +17,10 @@ app.config['SESSION_PERMANENT'] = False
 app.secret_key = 'secret123'
 
 # ✅ Enable CORS before routes
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
+CORS(app, resources={r"/api/*": {"origins": [
+    "http://localhost:5173",
+    "https://real-estate-app-frontend-p7h3.onrender.com"
+]}}, supports_credentials=True)
 
 # ✅ Initialize extensions
 Session(app)
